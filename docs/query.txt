@@ -1,0 +1,9 @@
+query {
+  getFeatureFlags(tables: ["bloqueio_pagamento_global", "bloqueio_geracao_boleto_global"]) {
+    featureFlags {
+      active
+      tableName 
+    }
+    message
+  }
+}
