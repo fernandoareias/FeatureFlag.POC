@@ -4,9 +4,6 @@ const typeDefs = gql`
   type FeatureFlag {
     id: ID!
     active: Boolean!
-    created_at: String!
-    updated_at: String!
-    des_documento: String
     tableName: String # Adiciona o campo tableName
   }
 

@@ -1,34 +1,55 @@
 export interface DbConfig {
-  defaultConfig: {
-    user: string;
-    host: string;
-    database: string;
-    password: string;
-    port: number;
-  };
-  tables: {
+  databaseConfig: {
     [key: string]: {
-      schema: string;
+      user: string;
+      host: string;
+      password: string;
+      port: number;
     };
   };
 }
 
-const dbConfig: DbConfig = {
-  defaultConfig: {
-    user: "postgres",
-    host: "localhost",
-    database: "postgres",
-    password: "Postgres2022!",
-    port: 5432,
-  },
+export interface TableConfig {
+  tables: {
+    [key: string]: {
+      database: string;
+      schema: string;
+      column: string;
+      expected: string;
+    };
+  };
+}
+
+export const tableConfig: TableConfig = {
   tables: {
     bloqueio_pagamento_global: {
+      database: "postgres",
       schema: "microservice01",
+      column: "active",
+      expected: "true",
     },
     bloqueio_geracao_boleto_global: {
+      database: "legado",
       schema: "legacy01",
+      column: "active",
+      expected: "true",
     },
   },
 };
 
-export default dbConfig;
+export const dbConfig: DbConfig = {
+  databaseConfig: {
+    postgres: {
+      user: "postgres",
+      host: "localhost",
+      password: "Postgres2022!",
+      port: 5432,
+    },
+    legado: {
+      user: "postgres",
+      host: "localhost",
+      password: "Postgres2022!",
+      port: 5432,
+    },
+  },
+};

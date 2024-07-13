@@ -1,3 +1,3 @@
 ## Architecture
 
-![arch drawio](https://github.com/user-attachments/assets/b24e1d9f-9e3d-4553-b794-5030fc81b55a)
+![arch drawio (1)](https://github.com/user-attachments/assets/b7c4a064-b931-4795-a276-81bfaf06ad5e)
