@@ -1,8 +1,6 @@
 
 
-CREATE DATABASE poc_database_ms;
-
-
+CREATE DATABASE postgres;
 
 CREATE SCHEMA IF NOT EXISTS microservice01;
 CREATE TABLE IF NOT EXISTS microservice01.bloqueio_pagamento_global (
@@ -22,6 +20,7 @@ insert into microservice01.bloqueio_pagamento_global (active) values (true)
 --     active BOOLEAN DEFAULT true
 -- );
  
+ CREATE DATABASE legado;
 create schema if not exists legacy01;
 
 CREATE TABLE IF NOT EXISTS legacy01.bloqueio_geracao_boleto_global (

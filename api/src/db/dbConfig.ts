@@ -15,6 +15,7 @@ export interface TableConfig {
       database: string;
       schema: string;
       column: string;
+      aliasName: string;
       expected: string;
     };
   };
@@ -26,12 +27,14 @@ export const tableConfig: TableConfig = {
       database: "postgres",
       schema: "microservice01",
       column: "active",
+      aliasName: "Bloqueio pagamento global",
       expected: "true",
     },
     bloqueio_geracao_boleto_global: {
       database: "legado",
       schema: "legacy01",
       column: "active",
+      aliasName: "Bloqueio geracao boleto global",
       expected: "true",
     },
   },

@@ -4,7 +4,8 @@ const typeDefs = gql`
   type FeatureFlag {
     id: ID!
     active: Boolean!
-    tableName: String # Adiciona o campo tableName
+    tableName: String
+    aliasName: String
   }
 
   type GetFeatureFlagsResponse {

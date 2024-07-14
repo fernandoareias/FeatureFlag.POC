@@ -4,8 +4,58 @@ services:
     image: postgres
     environment:
       POSTGRES_PASSWORD: "Postgres2022!"
+    networks:
+      - treinamento
     ports:
       - "5432:5432"
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    networks:
+      - treinamento
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  nifi:
+    build:
+      context: ./infrastructure
+      dockerfile: Dockerfile
+    container_name: nifi01
+    ports:
+      - 8080:8080
+    environment:
+      - NIFI_WEB_HTTP_PORT=8080
+    volumes:
+      - ./infrastructure/nifi/database_repository:/opt/nifi/nifi-current/database_repository
+      - ./infrastructure/nifi/flowfile_repository:/opt/nifi/nifi-current/flowfile_repository
+      - ./infrastructure/nifi/content_repository:/opt/nifi/nifi-current/content_repository
+      - ./infrastructure/nifi/provenance_repository:/opt/nifi/nifi-current/provenance_repository
+      - ./infrastructure/nifi/state:/opt/nifi/nifi-current/state
+      - ./infrastructure/nifi/logs:/opt/nifi/nifi-current/logs
+    networks:
+      - treinamento
+  registry:
+    hostname: myregistry
+    container_name: registry_container_persistent
+    image: "apache/nifi-registry:1.15.0"
+    restart: on-failure
+    ports:
+      - "18080:18080"
+    environment:
+      - LOG_LEVEL=INFO
+      - NIFI_REGISTRY_DB_DIR=/opt/nifi-registry/nifi-registry-current/database
+      - NIFI_REGISTRY_FLOW_PROVIDER=file
+      - NIFI_REGISTRY_FLOW_STORAGE_DIR=/opt/nifi-registry/nifi-registry-current/flow_storage
+    volumes:
+      - ./infrastructure/nifi_registry/database:/opt/nifi-registry/nifi-registry-current/database
+      - ./infrastructure/nifi_registry/flow_storage:/opt/nifi-registry/nifi-registry-current/flow_storage
+    networks:
+      - treinamento
 
 networks:
   treinamento:

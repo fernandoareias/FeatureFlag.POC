@@ -3,13 +3,11 @@ import Router from "koa-router";
 import { ApolloServer } from "apollo-server-koa";
 import typeDefs from "./graphql/schema";
 import resolvers from "./graphql/resolvers/featureFlags";
-import logger from "koa-logger";
 import loggerMiddleware from "./middlewares/loggerMiddleware";
 import bodyParser from "koa-bodyparser";
 
 const startServer = async () => {
   const app = new Koa();
-  app.use(logger());
   app.use(loggerMiddleware);
 
   const router = new Router();

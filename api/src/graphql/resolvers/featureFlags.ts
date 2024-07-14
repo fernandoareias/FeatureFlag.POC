@@ -1,5 +1,6 @@
 import createClient from "../../db/dbClient";
 import { dbConfig, tableConfig } from "../../db/dbConfig";
+import { LogManager } from "../../utils/logManager";
 
 const resolvers = {
   Query: {
@@ -8,22 +9,28 @@ const resolvers = {
       const notFoundTables = [];
 
       for (const table of args.tables) {
-        console.log("[+] - Buscando configuracao da tabela.");
+        LogManager.logInfo("Buscando configuracao da tabela.");
+
         const _tableConfig = tableConfig.tables[table];
-        console.log("[+] - " + _tableConfig);
+
+        LogManager.logInfo(
+          "Configuracao da tabela: " + JSON.stringify(_tableConfig)
+        );
 
         if (!_tableConfig) {
           notFoundTables.push(table);
           continue;
         }
+        LogManager.logInfo("Buscando nome da base.");
 
-        console.log("[+] - Buscando nome da base.");
         const database = _tableConfig.database;
-        console.log("[+] - Base: " + database);
+        LogManager.logInfo("Base: " + database);
 
-        console.log("[+] - Buscando configuracao da base.");
+        LogManager.logInfo("Buscando configuracao da base.");
+
         const config = dbConfig.databaseConfig[database];
-        console.log("[+] - Configuracao da base: " + JSON.stringify(config));
+
+        LogManager.logInfo("Configuracao da base: " + JSON.stringify(config));
 
         if (!config) {
           notFoundTables.push(table);
@@ -39,11 +46,13 @@ const resolvers = {
             results.push({
               active: true,
               tableName: table,
+              aliasName: _tableConfig.aliasName,
             });
           } else {
             results.push({
               active: false,
               tableName: table,
+              aliasName: "",
             });
           }
 
