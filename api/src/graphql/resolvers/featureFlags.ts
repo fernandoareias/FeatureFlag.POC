@@ -1,5 +1,7 @@
 import createClient from "../../db/dbClient";
 import { dbConfig, tableConfig } from "../../db/dbConfig";
+import { ChangeFlagValue } from "../../models/changeFlagValue.model";
+import { MessageQueue } from "../../rabbitmq/rabbitMQClient";
 import { LogManager } from "../../utils/logManager";
 
 const resolvers = {
@@ -39,12 +41,16 @@ const resolvers = {
 
         try {
           const client = await createClient(database);
-          const query = `SELECT * FROM ${_tableConfig.schema}.${table} WHERE ${_tableConfig.column} = ${_tableConfig.expected}`;
+          const query = `
+          SELECT ${_tableConfig.column} 
+          FROM ${_tableConfig.schema}.${table} LIMIT 1
+      `;
+
           const res = await client.query(query);
 
           if (res.rows.length > 0) {
             results.push({
-              active: true,
+              active: res.rows[0][_tableConfig.column],
               tableName: table,
               aliasName: _tableConfig.aliasName,
             });
@@ -77,30 +83,62 @@ const resolvers = {
   Mutation: {
     setFeatureFlag: async (
       _: any,
-      args: { table: string; id: string; active: boolean }
+      args: { table: string; active: boolean }
     ) => {
-      // const _tableConfig = tableConfig.tables[args.table];
-      // if (!_tableConfig) {
-      //   throw new Error(`Table ${args.table} not found in configuration.`);
-      // }
-      // const database = _tableConfig.database;
-      // const config = dbConfig.databaseConfig[database];
-      // if (!config) {
-      //   throw new Error(`Database configuration not found for ${database}`);
-      // }
-      // try {
-      //   const client = await createClient(database);
-      //   const query = `UPDATE ${config.schema}.${args.table} SET active = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *`;
-      //   const res = await client.query(query, [args.active, args.id]);
-      //   await client.end();
-      //   return res.rows[0];
-      // } catch (err) {
-      //   console.error(
-      //     `Error updating feature flag for table ${args.table}:`,
-      //     err
-      //   );
-      //   throw new Error("Failed to update feature flag");
-      // }
+      try {
+        const _tableConfig = tableConfig.tables[args.table];
+
+        LogManager.logInfo(
+          "Buscando configuracao da tabela: " + JSON.stringify(_tableConfig)
+        );
+
+        if (!_tableConfig) {
+          return {
+            success: false,
+          };
+        }
+
+        const databaseConfig = dbConfig.databaseConfig[_tableConfig.database];
+
+        LogManager.logInfo(
+          "Buscando configuracao da base: " + JSON.stringify(databaseConfig)
+        );
+
+        if (!databaseConfig) {
+          return {
+            success: false,
+          };
+        }
+
+        const message = {
+          active: args.active,
+          table: args.table,
+          column: _tableConfig.column,
+          database: {
+            host: databaseConfig.host,
+            username: databaseConfig.user,
+            password: databaseConfig.password,
+            port: databaseConfig.port,
+          },
+        };
+
+        const changeFlagValue = new ChangeFlagValue(message);
+
+        const response = await MessageQueue.publishToQueue(
+          args.table,
+          changeFlagValue.toString()
+        );
+
+        return {
+          success: response,
+        };
+      } catch (error) {
+        LogManager.logError(`Erro no set flag, error: ${error}`);
+
+        return {
+          success: false,
+        };
+      }
     },
   },
 };

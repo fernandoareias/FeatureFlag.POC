@@ -7,4 +7,8 @@ export class LogManager {
   static logInfo(message: string): void {
     console.log(`[+] [${this.getFormattedDateTime()}] - ${message}`);
   }
+
+  static logError(message: string): void {
+    console.error(`[-] [${this.getFormattedDateTime()}] - ${message}`);
+  }
 }

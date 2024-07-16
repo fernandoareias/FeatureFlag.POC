@@ -15,47 +15,39 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=admin
+    env_file:
+      - .env
     networks:
       - treinamento
     ports:
       - "5672:5672"
       - "15672:15672"
 
-  nifi:
+  react-app:
     build:
-      context: ./infrastructure
+      context: ./web-app
       dockerfile: Dockerfile
-    container_name: nifi01
-    ports:
-      - 8080:8080
-    environment:
-      - NIFI_WEB_HTTP_PORT=8080
-    volumes:
-      - ./infrastructure/nifi/database_repository:/opt/nifi/nifi-current/database_repository
-      - ./infrastructure/nifi/flowfile_repository:/opt/nifi/nifi-current/flowfile_repository
-      - ./infrastructure/nifi/content_repository:/opt/nifi/nifi-current/content_repository
-      - ./infrastructure/nifi/provenance_repository:/opt/nifi/nifi-current/provenance_repository
-      - ./infrastructure/nifi/state:/opt/nifi/nifi-current/state
-      - ./infrastructure/nifi/logs:/opt/nifi/nifi-current/logs
+    env_file:
+      - .env
     networks:
       - treinamento
-  registry:
-    hostname: myregistry
-    container_name: registry_container_persistent
-    image: "apache/nifi-registry:1.15.0"
-    restart: on-failure
     ports:
-      - "18080:18080"
-    environment:
-      - LOG_LEVEL=INFO
-      - NIFI_REGISTRY_DB_DIR=/opt/nifi-registry/nifi-registry-current/database
-      - NIFI_REGISTRY_FLOW_PROVIDER=file
-      - NIFI_REGISTRY_FLOW_STORAGE_DIR=/opt/nifi-registry/nifi-registry-current/flow_storage
-    volumes:
-      - ./infrastructure/nifi_registry/database:/opt/nifi-registry/nifi-registry-current/database
-      - ./infrastructure/nifi_registry/flow_storage:/opt/nifi-registry/nifi-registry-current/flow_storage
+      - "5001:80"
+    depends_on:
+      - api
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
     networks:
       - treinamento
+    env_file:
+      - ./api/.env
+    depends_on:
+      - rabbitmq
 
 networks:
   treinamento:

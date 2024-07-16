@@ -13,12 +13,16 @@ const typeDefs = gql`
     message: String
   }
 
+  type SetFeatureFlagsResponse {
+    success: Boolean!
+  }
+
   type Query {
     getFeatureFlags(tables: [String!]!): GetFeatureFlagsResponse!
   }
 
   type Mutation {
-    setFeatureFlag(table: String!, id: ID!, active: Boolean!): FeatureFlag!
+    setFeatureFlag(table: String!, active: Boolean!): SetFeatureFlagsResponse!
   }
 `;
 

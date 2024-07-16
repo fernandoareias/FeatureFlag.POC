@@ -7,3 +7,11 @@ query {
     message
   }
 }
+
+
+
+mutation SetFeatureFlag($table: String!, $active: Boolean!){
+  setFeatureFlag("teste", active: false) {
+    success
+  }
+}

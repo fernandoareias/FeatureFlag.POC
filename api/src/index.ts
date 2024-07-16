@@ -5,8 +5,14 @@ import typeDefs from "./graphql/schema";
 import resolvers from "./graphql/resolvers/featureFlags";
 import loggerMiddleware from "./middlewares/loggerMiddleware";
 import bodyParser from "koa-bodyparser";
+import { LogManager } from "./utils/logManager";
+import "./rabbitmq/consumerJob";
+
+import dotenv from "dotenv";
 
 const startServer = async () => {
+  dotenv.config();
+
   const app = new Koa();
   app.use(loggerMiddleware);
 
@@ -29,10 +35,10 @@ const startServer = async () => {
   app.use(router.routes()).use(router.allowedMethods());
 
   app.listen({ port: 4000 }, () => {
-    console.log("Server running on http://localhost:4000");
+    LogManager.logInfo("Server running on http://localhost:4000");
   });
 };
 
 startServer().catch((err) => {
-  console.error("Error starting server:", err);
+  LogManager.logError("Error starting server: " + err);
 });
